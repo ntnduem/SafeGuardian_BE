@@ -1,0 +1,371 @@
+# Tổng quan Database
+
+# 1. users
+
+## Mục đích
+
+Đây là **bảng trung tâm** của toàn bộ hệ thống.
+
+Lưu toàn bộ thông tin của người sử dụng ứng dụng.
+
+Một người dùng có thể có:
+
+- nhiều người thân
+- nhiều thiết bị
+- nhiều lần xảy ra sự cố
+- nhiều cảnh báo
+
+Quan hệ
+
+```
+1 User
+
+↓
+
+N Contacts
+
+↓
+
+N Devices
+
+↓
+
+N Accident Events
+
+↓
+
+N Emergency Alerts
+```
+
+---
+
+## Các trường
+
+| Trường | Kiểu | Ý nghĩa |
+| --- | --- | --- |
+| id | String | ID duy nhất của người dùng |
+| fullName | String | Họ tên đầy đủ |
+| phone | String | Số điện thoại |
+| email | String | Email đăng nhập hoặc nhận thông báo |
+| bloodType | String | Nhóm máu (A+, O+,...) phục vụ cấp cứu |
+| dateOfBirth | String | Ngày sinh |
+| gender | String | Giới tính |
+| medicalNote | String | Tiền sử bệnh, dị ứng thuốc... |
+| address | String | Địa chỉ |
+| status | Enum | ACTIVE / INACTIVE / BLOCKED |
+| createdAt | Timestamp | Thời điểm tạo tài khoản |
+| updatedAt | Timestamp | Lần cập nhật cuối |
+
+---
+
+# 2. emergency_contacts
+
+## Mục đích
+
+Lưu **danh sách người cần liên hệ khi xảy ra tai nạn**.
+
+Một người dùng có thể khai báo:
+
+- Cha
+- Mẹ
+- Anh
+- Chị
+- Bạn bè
+
+Ví dụ
+
+```
+Ngọc Diễm
+
+↓
+
+Cha
+
+↓
+
+Mẹ
+
+↓
+
+Anh trai
+```
+
+---
+
+## Các trường
+
+| Trường | Kiểu | Ý nghĩa |
+| --- | --- | --- |
+| id | String | ID người liên hệ |
+| userId | String | Chủ sở hữu |
+| fullName | String | Họ tên |
+| relationship | String | Quan hệ (Father, Mother...) |
+| phone | String | SĐT |
+| email | String | Email nhận cảnh báo |
+| priority | Number | Thứ tự ưu tiên |
+| isPrimary | Boolean | Người nhận chính |
+| createdAt | Timestamp | Ngày tạo |
+
+{
+"id": "contact_001",
+"userId": "user_001",
+"fullName": "Nguyễn Văn A",
+"relationship": "Father",
+"phone": "0901234567",
+"email": "family@example.com",
+"priority": 1,
+"isPrimary": true,
+"createdAt": "2026-06-26T13:31:00",
+"updatedAt": "2026-06-26T13:31:00"
+}
+
+# 4. accident_events
+
+## Mục đích
+
+Đây là **bảng ghi nhận dữ liệu cảm biến**.
+
+Quan trọng:
+
+> **Không phải mọi sự kiện trong bảng này đều là tai nạn.**
+> 
+
+Ví dụ
+
+```
+Điện thoại rơi
+
+↓
+
+Accelerometer
+
+↓
+
+Lưu accident_event
+
+↓
+
+Thuật toán đánh giá
+
+↓
+
+Có thể
+
+↓
+
+Tai nạn
+
+hoặc
+
+↓
+
+Báo động giả
+```
+
+Nó giống như log của cảm biến.
+
+Sau này rất hữu ích nếu muốn:
+
+- cải thiện thuật toán
+- Machine Learning
+- AI
+- Debug
+
+---
+
+## Các trường
+
+| Trường | Kiểu | Ý nghĩa |
+| --- | --- | --- |
+| id | String | ID sự kiện |
+| userId | String | Người dùng |
+| deviceId | String | Thiết bị phát hiện |
+| eventType | Enum | DROP, IMPACT... |
+| acceleration | Number | Gia tốc đo được |
+| threshold | Number | Ngưỡng phát hiện |
+| latitude | Double | Vĩ độ |
+| longitude | Double | Kinh độ |
+| isConfirmedAccident | Boolean | Có phải tai nạn thật hay không |
+| createdAt | Timestamp | Thời gian ghi nhận |
+
+{
+"id": "event_001",
+"userId": "user_001",
+"eventType": "STRONG_IMPACT",
+"acceleration": 31.5,
+"threshold": 25.0,
+"latitude": 10.762622,
+"longitude": 106.660172,
+"isConfirmedAccident": true,
+"createdAt": "2026-06-26T13:35:00"
+}
+
+# 5. emergency_alerts
+
+## Mục đích
+
+Đây là **bảng quan trọng nhất của hệ thống**.
+
+Nó chỉ được tạo khi hệ thống xác định:
+
+> Có khả năng người dùng đang gặp tai nạn.
+> 
+
+Ví dụ
+
+```
+Cảm biến
+
+↓
+
+accident_event
+
+↓
+
+Thuật toán
+
+↓
+
+Đếm ngược 10 giây
+
+↓
+
+Người dùng không phản hồi
+
+↓
+
+Tạo emergency_alert
+
+↓
+
+Spring Boot
+
+↓
+
+Gửi Email
+```
+
+Mỗi dòng trong bảng này tương ứng với **một lần cảnh báo chính thức**.
+
+---
+
+## Các trường
+
+| Trường | Kiểu | Ý nghĩa |
+| --- | --- | --- |
+| id | String | ID cảnh báo |
+| userId | String | Người gặp nạn |
+| type | Enum | ACCIDENT, SOS... |
+| status | Enum | PENDING, SENT, FAILED... |
+| latitude | Double | Vị trí |
+| longitude | Double | Vị trí |
+| mapUrl | String | Link Google Maps |
+| message | String | Nội dung gửi email |
+| triggerSource | Enum | AUTO, MANUAL, SIMULATION |
+| sentEmail | Boolean | Đã gửi email chưa |
+| sentAt | Timestamp | Thời điểm gửi |
+| createdAt | Timestamp | Thời điểm tạo |
+| updatedAt | Timestamp | Lần cập nhật cuối |
+
+---
+
+# Mối quan hệ giữa các bảng
+
+```
+users (1)
+│
+├───────────────┐
+│               │
+│               │
+▼               ▼
+emergency_contacts (N)
+devices (N)
+│
+▼
+accident_events (N)
+│
+▼
+emergency_alerts (N)
+```
+
+## Luồng hoạt động của hệ thống
+
+```
+1. Người dùng đăng ký
+        │
+        ▼
+      users
+        │
+        ▼
+2. Khai báo người thân
+        │
+        ▼
+emergency_contacts
+        │
+        ▼
+3. Thiết bị phát hiện va chạm
+        │
+        ▼
+accident_events
+        │
+        ▼
+4. Đếm ngược xác nhận
+        │
+        ▼
+Không phản hồi
+        │
+        ▼
+emergency_alerts
+        │
+        ▼
+Spring Boot gửi Email
+        │
+        ▼
+Người thân nhận cảnh báo
+```
+
+{
+"id": "event_001",
+"userId": "user_001",
+"eventType": "STRONG_IMPACT",
+"acceleration": 31.5,
+"threshold": 25.0,
+"latitude": 10.762622,
+"longitude": 106.660172,
+"isConfirmedAccident": true,
+"createdAt": "2026-06-26T13:35:00"
+}
+
+{
+"id": "alert_001",
+"userId": "user_001",
+"eventId": "event_001",
+"type": "ACCIDENT",
+"status": "PENDING",
+"latitude": 10.762622,
+"longitude": 106.660172,
+"mapUrl": "https://maps.google.com/?q=10.762622,106.660172",
+"message": "Nguyễn Thị Ngọc Diễm có thể đang gặp tai nạn. Vui lòng kiểm tra vị trí hiện tại.",
+"triggerSource": "AUTO_DETECTED",
+"sentEmail": false,
+"sentAt": null,
+"createdAt": "2026-06-26T13:36:00",
+"updatedAt": "2026-06-26T13:36:00"
+}
+
+Dưới đây là bộ API cần code cho hệ thống **SafeGuardian**.
+
+Kiến trúc:
+
+```
+React Native → Spring Boot API → Firebase Firestore → Email Service
+```
+
+Collections:
+
+```
+users
+emergency_contacts
+accident_events
+emergency_alerts
+```

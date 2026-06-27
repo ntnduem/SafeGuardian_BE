@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: safeguardian-api
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ngocdiem31072004@gmail.com
+    password: tfzvcfuqdflggjjp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+firebase:
+  credentials:
+    path: ${FIREBASE_CREDENTIALS_PATH:}

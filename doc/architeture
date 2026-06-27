@@ -1,0 +1,31 @@
+safeguardian-api
+│
+├── config
+│      FirebaseConfig
+│      MailConfig
+│
+├── controller
+│      UserController
+│      ContactController
+│      AccidentController
+│      EmergencyController
+│
+├── dto
+│
+├── entity
+│
+├── mapper
+│
+├── repository
+│
+├── service
+│
+├── service.impl
+│
+├── exception
+│
+├── util
+│
+├── constant
+│
+└── response

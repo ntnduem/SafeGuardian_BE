@@ -1,0 +1,626 @@
+Dưới đây là bộ API cần code cho hệ thống **SafeGuardian**.
+
+Kiến trúc:
+
+```text
+React Native → Spring Boot API → Firebase Firestore → Email Service
+```
+
+Collections:
+
+```text
+users
+emergency_contacts
+accident_events
+emergency_alerts
+```
+
+---
+
+# 1. User API
+
+## 1.1. Tạo người dùng
+
+```http
+POST /api/users
+```
+
+Request:
+
+```json
+{
+  "fullName": "Nguyễn Thị Ngọc Diễm",
+  "phone": "0379891713",
+  "email": "ngocdiem@example.com",
+  "bloodType": "O+",
+  "dateOfBirth": "2003-01-01",
+  "gender": "FEMALE",
+  "medicalNote": "Không có ghi chú y tế đặc biệt",
+  "address": "TP. Hồ Chí Minh"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Tạo người dùng thành công",
+  "data": {
+    "id": "user_001",
+    "fullName": "Nguyễn Thị Ngọc Diễm",
+    "phone": "0379891713",
+    "email": "ngocdiem@example.com",
+    "bloodType": "O+",
+    "status": "ACTIVE",
+    "createdAt": "2026-06-26T14:00:00"
+  }
+}
+```
+
+---
+
+## 1.2. Lấy thông tin người dùng
+
+```http
+GET /api/users/{userId}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_001",
+    "fullName": "Nguyễn Thị Ngọc Diễm",
+    "phone": "0379891713",
+    "email": "ngocdiem@example.com",
+    "bloodType": "O+",
+    "dateOfBirth": "2003-01-01",
+    "gender": "FEMALE",
+    "medicalNote": "Không có ghi chú y tế đặc biệt",
+    "address": "TP. Hồ Chí Minh",
+    "status": "ACTIVE"
+  }
+}
+```
+
+---
+
+## 1.3. Cập nhật người dùng
+
+```http
+PUT /api/users/{userId}
+```
+
+Request:
+
+```json
+{
+  "fullName": "Nguyễn Thị Ngọc Diễm",
+  "phone": "0379891713",
+  "bloodType": "A+",
+  "medicalNote": "Dị ứng Penicillin",
+  "address": "Thủ Đức, TP. Hồ Chí Minh"
+}
+```
+
+---
+
+## 1.4. Xóa hoặc vô hiệu hóa người dùng
+
+Nên dùng disable thay vì xóa thật.
+
+```http
+PATCH /api/users/{userId}/status
+```
+
+Request:
+
+```json
+{
+  "status": "INACTIVE"
+}
+```
+
+---
+
+# 2. Emergency Contact API
+
+## 2.1. Thêm người liên hệ khẩn cấp
+
+```http
+POST /api/users/{userId}/contacts
+```
+
+Request:
+
+```json
+{
+  "fullName": "Nguyễn Văn A",
+  "relationship": "Father",
+  "phone": "0901234567",
+  "email": "family@example.com",
+  "priority": 1,
+  "isPrimary": true
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Thêm liên hệ khẩn cấp thành công",
+  "data": {
+    "id": "contact_001",
+    "userId": "user_001",
+    "fullName": "Nguyễn Văn A",
+    "relationship": "Father",
+    "phone": "0901234567",
+    "email": "family@example.com",
+    "priority": 1,
+    "isPrimary": true
+  }
+}
+```
+
+---
+
+## 2.2. Lấy danh sách người liên hệ
+
+```http
+GET /api/users/{userId}/contacts
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "contact_001",
+      "fullName": "Nguyễn Văn A",
+      "relationship": "Father",
+      "phone": "0901234567",
+      "email": "family@example.com",
+      "priority": 1,
+      "isPrimary": true
+    },
+    {
+      "id": "contact_002",
+      "fullName": "Trần Thị B",
+      "relationship": "Mother",
+      "phone": "0912345678",
+      "email": "mother@example.com",
+      "priority": 2,
+      "isPrimary": false
+    }
+  ]
+}
+```
+
+---
+
+## 2.3. Cập nhật liên hệ
+
+```http
+PUT /api/contacts/{contactId}
+```
+
+Request:
+
+```json
+{
+  "fullName": "Nguyễn Văn A",
+  "relationship": "Father",
+  "phone": "0901234567",
+  "email": "newfamily@example.com",
+  "priority": 1,
+  "isPrimary": true
+}
+```
+
+---
+
+## 2.4. Xóa liên hệ
+
+```http
+DELETE /api/contacts/{contactId}
+```
+
+---
+
+# 3. Accident Event API
+
+Dùng để ghi nhận sự kiện cảm biến.
+
+## 3.1. Tạo sự kiện va chạm/rơi điện thoại
+
+```http
+POST /api/accident-events
+```
+
+Request:
+
+```json
+{
+  "userId": "user_001",
+  "eventType": "STRONG_IMPACT",
+  "acceleration": 31.5,
+  "threshold": 25.0,
+  "latitude": 10.762622,
+  "longitude": 106.660172,
+  "isConfirmedAccident": false
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Ghi nhận sự kiện cảm biến thành công",
+  "data": {
+    "id": "event_001",
+    "userId": "user_001",
+    "eventType": "STRONG_IMPACT",
+    "acceleration": 31.5,
+    "threshold": 25.0,
+    "latitude": 10.762622,
+    "longitude": 106.660172,
+    "isConfirmedAccident": false,
+    "createdAt": "2026-06-26T14:10:00"
+  }
+}
+```
+
+---
+
+## 3.2. Xác nhận sự kiện là tai nạn
+
+```http
+PATCH /api/accident-events/{eventId}/confirm
+```
+
+Request:
+
+```json
+{
+  "isConfirmedAccident": true
+}
+```
+
+---
+
+## 3.3. Lấy lịch sử sự kiện theo người dùng
+
+```http
+GET /api/users/{userId}/accident-events
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "event_001",
+      "eventType": "STRONG_IMPACT",
+      "acceleration": 31.5,
+      "threshold": 25.0,
+      "latitude": 10.762622,
+      "longitude": 106.660172,
+      "isConfirmedAccident": true,
+      "createdAt": "2026-06-26T14:10:00"
+    }
+  ]
+}
+```
+
+---
+
+# 4. Emergency Alert API
+
+Đây là API quan trọng nhất.
+
+## 4.1. Gửi SOS thủ công
+
+Người dùng bấm nút SOS.
+
+```http
+POST /api/emergency-alerts/sos
+```
+
+Request:
+
+```json
+{
+  "userId": "user_001",
+  "latitude": 10.762622,
+  "longitude": 106.660172
+}
+```
+
+Backend sẽ:
+
+```text
+1. Lấy thông tin user
+2. Lấy danh sách emergency_contacts
+3. Tạo emergency_alert
+4. Gửi email
+5. Cập nhật status SENT hoặc FAILED
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Đã gửi cảnh báo SOS đến người thân",
+  "data": {
+    "id": "alert_001",
+    "userId": "user_001",
+    "type": "SOS",
+    "status": "SENT",
+    "mapUrl": "https://maps.google.com/?q=10.762622,106.660172",
+    "sentEmail": true,
+    "sentAt": "2026-06-26T14:15:00"
+  }
+}
+```
+
+---
+
+## 4.2. Gửi cảnh báo tai nạn tự động
+
+Sau khi cảm biến phát hiện va chạm và người dùng không bấm “Tôi ổn”.
+
+```http
+POST /api/emergency-alerts/accident
+```
+
+Request:
+
+```json
+{
+  "userId": "user_001",
+  "eventId": "event_001",
+  "latitude": 10.762622,
+  "longitude": 106.660172,
+  "acceleration": 31.5
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Đã gửi cảnh báo tai nạn đến người thân",
+  "data": {
+    "id": "alert_002",
+    "userId": "user_001",
+    "eventId": "event_001",
+    "type": "ACCIDENT",
+    "triggerSource": "AUTO_DETECTED",
+    "status": "SENT",
+    "mapUrl": "https://maps.google.com/?q=10.762622,106.660172",
+    "sentEmail": true
+  }
+}
+```
+
+---
+
+## 4.3. Gửi cảnh báo giả lập tai nạn
+
+Dùng cho demo.
+
+```http
+POST /api/emergency-alerts/simulation
+```
+
+Request:
+
+```json
+{
+  "userId": "user_001",
+  "latitude": 10.762622,
+  "longitude": 106.660172
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Đã gửi cảnh báo giả lập",
+  "data": {
+    "id": "alert_003",
+    "type": "ACCIDENT",
+    "triggerSource": "SIMULATION",
+    "status": "SENT"
+  }
+}
+```
+
+---
+
+## 4.4. Lấy lịch sử cảnh báo
+
+```http
+GET /api/users/{userId}/emergency-alerts
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "alert_001",
+      "type": "SOS",
+      "status": "SENT",
+      "mapUrl": "https://maps.google.com/?q=10.762622,106.660172",
+      "triggerSource": "MANUAL_SOS",
+      "sentEmail": true,
+      "sentAt": "2026-06-26T14:15:00",
+      "createdAt": "2026-06-26T14:15:00"
+    }
+  ]
+}
+```
+
+---
+
+## 4.5. Hủy cảnh báo trong lúc đếm ngược
+
+```http
+PATCH /api/emergency-alerts/{alertId}/cancel
+```
+
+Request:
+
+```json
+{
+  "reason": "Người dùng xác nhận an toàn"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Cảnh báo đã được hủy",
+  "data": {
+    "id": "alert_001",
+    "status": "CANCELLED"
+  }
+}
+```
+
+---
+
+# 5. Email API
+
+Có thể để nội bộ backend gọi, hoặc tạo endpoint test riêng.
+
+## 5.1. Test gửi email
+
+```http
+POST /api/emails/test
+```
+
+Request:
+
+```json
+{
+  "to": "family@example.com",
+  "subject": "SafeGuardian Test Email",
+  "content": "Đây là email kiểm tra từ SafeGuardian."
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Gửi email test thành công"
+}
+```
+
+---
+
+# 6. API cho màn hình thông tin khẩn cấp
+
+## 6.1. Lấy emergency profile
+
+Màn hình này dùng để hiển thị nhanh thông tin y tế.
+
+```http
+GET /api/users/{userId}/emergency-profile
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "fullName": "Nguyễn Thị Ngọc Diễm",
+    "phone": "0379891713",
+    "bloodType": "O+",
+    "medicalNote": "Không có ghi chú y tế đặc biệt",
+    "address": "TP. Hồ Chí Minh",
+    "primaryContact": {
+      "fullName": "Nguyễn Văn A",
+      "relationship": "Father",
+      "phone": "0901234567",
+      "email": "family@example.com"
+    }
+  }
+}
+```
+
+---
+
+# 7. API tổng hợp nên code
+
+## User
+
+```http
+POST   /api/users
+GET    /api/users/{userId}
+PUT    /api/users/{userId}
+PATCH  /api/users/{userId}/status
+```
+
+## Contact
+
+```http
+POST   /api/users/{userId}/contacts
+GET    /api/users/{userId}/contacts
+PUT    /api/contacts/{contactId}
+DELETE /api/contacts/{contactId}
+```
+
+## Accident Event
+
+```http
+POST   /api/accident-events
+PATCH  /api/accident-events/{eventId}/confirm
+GET    /api/users/{userId}/accident-events
+```
+
+## Emergency Alert
+
+```http
+POST   /api/emergency-alerts/sos
+POST   /api/emergency-alerts/accident
+POST   /api/emergency-alerts/simulation
+GET    /api/users/{userId}/emergency-alerts
+PATCH  /api/emergency-alerts/{alertId}/cancel
+```
+
+## Emergency Profile
+
+```http
+GET    /api/users/{userId}/emergency-profile
+```
+
+## Email Test
+
+```http
+POST   /api/emails/test
+```
+
+---
+
