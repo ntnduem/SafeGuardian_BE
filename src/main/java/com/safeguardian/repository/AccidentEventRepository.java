@@ -64,7 +64,7 @@ public class AccidentEventRepository {
         db.collection(COLLECTION).document(eventId).update(updates).get();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    // Helpers
 
     private Map<String, Object> toMap(AccidentEvent e) {
         Map<String, Object> map = new HashMap<>();

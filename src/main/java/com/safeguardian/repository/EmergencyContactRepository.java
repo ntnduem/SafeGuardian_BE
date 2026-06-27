@@ -90,7 +90,7 @@ public class EmergencyContactRepository {
         log.debug("Đã xóa contact: {}", contactId);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    //Helpers
 
     private Map<String, Object> toMap(EmergencyContact c) {
         Map<String, Object> map = new HashMap<>();

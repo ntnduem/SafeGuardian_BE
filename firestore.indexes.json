@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "emergency_contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",   "order": "ASCENDING" },
+        { "fieldPath": "priority", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "emergency_contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "isPrimary", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "accident_events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "emergency_alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

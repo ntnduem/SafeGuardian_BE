@@ -1,0 +1,257 @@
+{
+  "info": {
+    "name": "SafeGuardian API",
+    "description": "Ứng dụng hỗ trợ an toàn cá nhân và cảnh báo tai nạn giao thông",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",    "value": "http://localhost:8080" },
+    { "key": "userId",     "value": "user_demo_001" },
+    { "key": "contactId",  "value": "contact_demo_001" },
+    { "key": "eventId",    "value": "event_demo_001" },
+    { "key": "alertId",    "value": "alert_demo_001" }
+  ],
+  "item": [
+    {
+      "name": "DEV",
+      "item": [
+        {
+          "name": "Seed dữ liệu demo",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/dev/seed",
+            "description": "Tạo dữ liệu mẫu vào 4 collections Firestore. Chạy 1 lần đầu."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. User",
+      "item": [
+        {
+          "name": "1.1 Tạo người dùng",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyễn Thị Ngọc Diễm\",\n  \"phone\": \"0379891713\",\n  \"email\": \"ngocdiem@example.com\",\n  \"bloodType\": \"O+\",\n  \"dateOfBirth\": \"2003-01-01\",\n  \"gender\": \"FEMALE\",\n  \"medicalNote\": \"Không có ghi chú y tế đặc biệt\",\n  \"address\": \"TP. Hồ Chí Minh\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.2 Lấy thông tin người dùng",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "1.3 Cập nhật người dùng",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bloodType\": \"A+\",\n  \"medicalNote\": \"Dị ứng Penicillin\",\n  \"address\": \"Thủ Đức, TP. Hồ Chí Minh\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.4 Cập nhật trạng thái",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/users/{{userId}}/status",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INACTIVE\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Emergency Contact",
+      "item": [
+        {
+          "name": "2.1 Thêm người liên hệ (Cha)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users/{{userId}}/contacts",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyễn Văn A\",\n  \"relationship\": \"Father\",\n  \"phone\": \"0901234567\",\n  \"email\": \"father@example.com\",\n  \"priority\": 1,\n  \"isPrimary\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "2.2 Thêm người liên hệ (Mẹ)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users/{{userId}}/contacts",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Trần Thị B\",\n  \"relationship\": \"Mother\",\n  \"phone\": \"0912345678\",\n  \"email\": \"mother@example.com\",\n  \"priority\": 2,\n  \"isPrimary\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "2.3 Danh sách người liên hệ",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}/contacts"
+          }
+        },
+        {
+          "name": "2.4 Cập nhật người liên hệ",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newfamily@example.com\",\n  \"priority\": 1,\n  \"isPrimary\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "2.5 Xóa người liên hệ",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/contacts/{{contactId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Accident Event",
+      "item": [
+        {
+          "name": "3.1 Ghi nhận sự kiện cảm biến",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/accident-events",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"eventType\": \"STRONG_IMPACT\",\n  \"acceleration\": 31.5,\n  \"threshold\": 25.0,\n  \"latitude\": 10.762622,\n  \"longitude\": 106.660172,\n  \"isConfirmedAccident\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "3.2 Xác nhận tai nạn",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/accident-events/{{eventId}}/confirm",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isConfirmedAccident\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "3.3 Lịch sử sự kiện",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}/accident-events"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Emergency Alert",
+      "item": [
+        {
+          "name": "4.1 Gửi SOS",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/emergency-alerts/sos",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"latitude\": 10.762622,\n  \"longitude\": 106.660172\n}"
+            }
+          }
+        },
+        {
+          "name": "4.2 Gửi cảnh báo tai nạn tự động",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/emergency-alerts/accident",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"eventId\": \"{{eventId}}\",\n  \"latitude\": 10.762622,\n  \"longitude\": 106.660172,\n  \"acceleration\": 31.5\n}"
+            }
+          }
+        },
+        {
+          "name": "4.3 Giả lập tai nạn (DEMO)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/emergency-alerts/simulation",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"latitude\": 10.762622,\n  \"longitude\": 106.660172\n}"
+            }
+          }
+        },
+        {
+          "name": "4.4 Lịch sử cảnh báo",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}/emergency-alerts"
+          }
+        },
+        {
+          "name": "4.5 Hủy cảnh báo (Tôi ổn)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/emergency-alerts/{{alertId}}/cancel",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Người dùng xác nhận an toàn\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Emergency Profile",
+      "item": [
+        {
+          "name": "5.1 Lấy hồ sơ khẩn cấp",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}/emergency-profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Email",
+      "item": [
+        {
+          "name": "6.1 Test gửi email",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/emails/test",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"your-email@gmail.com\",\n  \"subject\": \"SafeGuardian Test Email\",\n  \"content\": \"Email kiểm tra từ SafeGuardian. Nếu nhận được, cấu hình SMTP đã hoạt động.\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

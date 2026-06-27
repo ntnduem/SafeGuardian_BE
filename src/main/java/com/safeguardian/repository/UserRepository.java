@@ -55,7 +55,7 @@ public class UserRepository {
         db.collection(COLLECTION).document(userId).update(updates).get();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    //  Helpers
 
     private Map<String, Object> toMap(User user) {
         Map<String, Object> map = new HashMap<>();

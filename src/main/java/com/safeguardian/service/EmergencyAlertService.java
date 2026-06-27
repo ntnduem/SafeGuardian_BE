@@ -28,7 +28,7 @@ public class EmergencyAlertService {
     private final EmergencyContactRepository contactRepository;
     private final EmailService emailService;
 
-    // ── SOS Alert ─────────────────────────────────────────────────────────────
+    // SOS Alert
 
     public EmergencyAlert sendSosAlert(SosAlertRequest req) throws Exception {
         User user = getUser(req.getUserId());
@@ -72,7 +72,7 @@ public class EmergencyAlertService {
         return alert;
     }
 
-    // ── Accident Alert ────────────────────────────────────────────────────────
+    // Accident Alert
 
     public EmergencyAlert sendAccidentAlert(AccidentAlertRequest req) throws Exception {
         User user = getUser(req.getUserId());
@@ -116,7 +116,7 @@ public class EmergencyAlertService {
         return alert;
     }
 
-    // ── Simulation Alert ──────────────────────────────────────────────────────
+    //  Simulation Alert
 
     public EmergencyAlert sendSimulationAlert(SimulationAlertRequest req) throws Exception {
         User user = getUser(req.getUserId());
@@ -159,13 +159,13 @@ public class EmergencyAlertService {
         return alert;
     }
 
-    // ── Get Alerts ────────────────────────────────────────────────────────────
+    //  Get Alerts
 
     public List<EmergencyAlert> getAlertsByUserId(String userId) throws Exception {
         return alertRepository.findByUserId(userId);
     }
 
-    // ── Cancel Alert ──────────────────────────────────────────────────────────
+    // Cancel Alert
 
     public EmergencyAlert cancelAlert(String alertId, String reason) throws Exception {
         alertRepository.findById(alertId)
@@ -175,7 +175,7 @@ public class EmergencyAlertService {
         return cancelled;
     }
 
-    // ── Emergency Profile ─────────────────────────────────────────────────────
+    // Emergency Profile
 
     public java.util.Map<String, Object> getEmergencyProfile(String userId) throws Exception {
         User user = getUser(userId);
@@ -202,7 +202,7 @@ public class EmergencyAlertService {
         return profile;
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     private User getUser(String userId) throws Exception {
         return userRepository.findById(userId)

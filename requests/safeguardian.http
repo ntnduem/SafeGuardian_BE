@@ -1,0 +1,243 @@
+### SafeGuardian API - REST Client (VSCode/Cursor)
+### Extension cần: "REST Client" (humao.rest-client)
+### Hướng dẫn: Bấm "Send Request" phía trên mỗi block ### để gọi API
+
+@baseUrl = http://localhost:8080
+@userId  = user_demo_001
+@contactId = contact_demo_001
+@eventId = event_demo_001
+@alertId = alert_demo_001
+
+# ══════════════════════════════════════════════════════════════════
+#  DEV - Seed dữ liệu demo (chạy lần đầu để khởi tạo DB)
+# ══════════════════════════════════════════════════════════════════
+
+### [DEV] Seed toàn bộ 4 collections với dữ liệu mẫu
+POST {{baseUrl}}/api/dev/seed
+
+
+# ══════════════════════════════════════════════════════════════════
+#  USER API
+# ══════════════════════════════════════════════════════════════════
+
+### [1.1] Tạo người dùng mới
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+  "fullName": "Phùng Khánh Duy",
+  "phone": "0379891713",
+  "email": "khanhduy@example.com",
+  "bloodType": "O+",
+  "dateOfBirth": "2004-01-01",
+  "gender": "MALE",
+  "medicalNote": "Không có ghi chú y tế đặc biệt",
+  "address": "TP. Hồ Chí Minh"
+}
+
+###
+
+### [1.2] Lấy thông tin người dùng
+GET {{baseUrl}}/api/users/{{userId}}
+
+###
+
+### [1.3] Cập nhật thông tin người dùng
+PUT {{baseUrl}}/api/users/{{userId}}
+Content-Type: application/json
+
+{
+  "fullName": "Phùng Khánh Duy",
+  "phone": "0379891713",
+  "bloodType": "A+",
+  "medicalNote": "Dị ứng Penicillin",
+  "address": "Thủ Đức, TP. Hồ Chí Minh"
+}
+
+###
+
+### [1.4] Vô hiệu hóa người dùng (INACTIVE / BLOCKED / ACTIVE)
+PATCH {{baseUrl}}/api/users/{{userId}}/status
+Content-Type: application/json
+
+{
+  "status": "INACTIVE"
+}
+
+###
+
+# ══════════════════════════════════════════════════════════════════
+#  EMERGENCY CONTACT API
+# ══════════════════════════════════════════════════════════════════
+
+### [2.1] Thêm người liên hệ khẩn cấp
+POST {{baseUrl}}/api/users/{{userId}}/contacts
+Content-Type: application/json
+
+{
+  "fullName": "Nguyễn Văn A",
+  "relationship": "Father",
+  "phone": "0901234567",
+  "email": "father@example.com",
+  "priority": 1,
+  "isPrimary": true
+}
+
+###
+
+### [2.2] Thêm người liên hệ thứ 2
+POST {{baseUrl}}/api/users/{{userId}}/contacts
+Content-Type: application/json
+
+{
+  "fullName": "Trần Thị B",
+  "relationship": "Mother",
+  "phone": "0912345678",
+  "email": "mother@example.com",
+  "priority": 2,
+  "isPrimary": false
+}
+
+###
+
+### [2.3] Lấy danh sách người liên hệ của user
+GET {{baseUrl}}/api/users/{{userId}}/contacts
+
+###
+
+### [2.4] Cập nhật người liên hệ
+PUT {{baseUrl}}/api/contacts/{{contactId}}
+Content-Type: application/json
+
+{
+  "fullName": "Nguyễn Văn A",
+  "relationship": "Father",
+  "phone": "0901234567",
+  "email": "newfamily@example.com",
+  "priority": 1,
+  "isPrimary": true
+}
+
+###
+
+### [2.5] Xóa người liên hệ
+DELETE {{baseUrl}}/api/contacts/{{contactId}}
+
+###
+
+# ══════════════════════════════════════════════════════════════════
+#  ACCIDENT EVENT API
+# ══════════════════════════════════════════════════════════════════
+
+### [3.1] Ghi nhận sự kiện cảm biến (điện thoại rơi / va chạm)
+POST {{baseUrl}}/api/accident-events
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "eventType": "STRONG_IMPACT",
+  "acceleration": 31.5,
+  "threshold": 25.0,
+  "latitude": 10.762622,
+  "longitude": 106.660172,
+  "isConfirmedAccident": false
+}
+
+###
+
+### [3.2] Xác nhận sự kiện là tai nạn thật
+PATCH {{baseUrl}}/api/accident-events/{{eventId}}/confirm
+Content-Type: application/json
+
+{
+  "isConfirmedAccident": true
+}
+
+###
+
+### [3.3] Lấy lịch sử sự kiện theo user
+GET {{baseUrl}}/api/users/{{userId}}/accident-events
+
+###
+
+# ══════════════════════════════════════════════════════════════════
+#  EMERGENCY ALERT API
+# ══════════════════════════════════════════════════════════════════
+
+### [4.1] Gửi SOS thủ công (người dùng bấm nút SOS)
+POST {{baseUrl}}/api/emergency-alerts/sos
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "latitude": 10.762622,
+  "longitude": 106.660172
+}
+
+###
+
+### [4.2] Gửi cảnh báo tai nạn tự động (sau khi cảm biến phát hiện)
+POST {{baseUrl}}/api/emergency-alerts/accident
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "eventId": "{{eventId}}",
+  "latitude": 10.762622,
+  "longitude": 106.660172,
+  "acceleration": 31.5
+}
+
+###
+
+### [4.3] Giả lập tai nạn (dùng cho DEMO - sau khi đếm ngược 10s)
+POST {{baseUrl}}/api/emergency-alerts/simulation
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "latitude": 10.762622,
+  "longitude": 106.660172
+}
+
+###
+
+### [4.4] Lấy lịch sử cảnh báo của user
+GET {{baseUrl}}/api/users/{{userId}}/emergency-alerts
+
+###
+
+### [4.5] Hủy cảnh báo (người dùng bấm "Tôi ổn" trong lúc đếm ngược)
+PATCH {{baseUrl}}/api/emergency-alerts/{{alertId}}/cancel
+Content-Type: application/json
+
+{
+  "reason": "Người dùng xác nhận an toàn"
+}
+
+###
+
+# ══════════════════════════════════════════════════════════════════
+#  EMERGENCY PROFILE API
+# ══════════════════════════════════════════════════════════════════
+
+### [5.1] Lấy hồ sơ khẩn cấp (màn hình thông tin y tế nhanh)
+GET {{baseUrl}}/api/users/{{userId}}/emergency-profile
+
+###
+
+# ══════════════════════════════════════════════════════════════════
+#  EMAIL API
+# ══════════════════════════════════════════════════════════════════
+
+### [6.1] Test gửi email (kiểm tra cấu hình SMTP)
+POST {{baseUrl}}/api/emails/test
+Content-Type: application/json
+
+{
+  "to": "your-email@gmail.com",
+  "subject": "SafeGuardian Test Email",
+  "content": "Email kiểm tra từ SafeGuardian. Nếu nhận được email này, cấu hình SMTP đã hoạt động."
+}
+
+###

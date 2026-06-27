@@ -22,7 +22,7 @@ public class EmailService {
     @Value("${spring.mail.from}")
     private String fromAddress;
 
-    // ── Public methods ────────────────────────────────────────────────────────
+    // Public methods
 
     public void sendSosAlert(User user, List<EmergencyContact> contacts, double lat, double lng) {
         String mapUrl = buildMapUrl(lat, lng);
@@ -55,7 +55,7 @@ public class EmailService {
         }
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     private void sendToContacts(List<EmergencyContact> contacts, String subject, String html) {
         if (contacts == null || contacts.isEmpty()) {
