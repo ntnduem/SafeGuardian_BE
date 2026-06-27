@@ -1,0 +1,25 @@
+# Môi trường - KHÔNG commit lên git
+.env
+.env.*
+!.env.example
+
+# Firebase credentials - KHÔNG commit lên git
+src/main/resources/firebase-service-account.json
+
+# Maven build output
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
